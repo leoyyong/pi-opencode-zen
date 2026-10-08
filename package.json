@@ -1,0 +1,18 @@
+{
+  "name": "pi-opencode-zen-free",
+  "version": "0.1.0",
+  "description": "Pi extension that exposes the free OpenCode Zen models as a dynamically refreshed provider.",
+  "keywords": ["pi-package"],
+  "type": "module",
+  "pi": {
+    "extensions": ["./extensions/opencode-zen-free.ts"]
+  },
+  "scripts": {
+    "test": "node --test test/*.test.ts"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-ai": "*",
+    "@earendil-works/pi-coding-agent": "*",
+    "@earendil-works/pi-tui": "*"
+  }
+}
