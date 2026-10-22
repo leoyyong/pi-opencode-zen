@@ -29,31 +29,8 @@ pi -e /data/data/com.termux/files/home/workspace/pi-opencode-zen
 | `/model` | 选择 `opencode-zen-free` 下的免费模型 |
 | `Ctrl+Shift+R` | 强制刷新免费模型列表 |
 | `/opencode-zen-free` | 同样的刷新命令（快捷键不可用时使用） |
-| `/zen-models` | 列出当前免费模型及其描述（介绍＋适合用处＋注意事项） |
 
-可用模型示例：`big-pickle`、`space-bunny-free`、`mimo-v2.6-flash-free`、`ling-3.1-flash-free`、`fledge-alpha-free`、`longcat-2.5-preview-free`、`muse-spark-1.3-contributor-free` 等。
-
-## 模型描述
-
-每个暴露出来的模型都会带上一行 `description`（数据源：OpenCode Zen 官方文档，2026-10-08 抓取），内容是「介绍；适合：……；⚠️ 注意事项」。维护在 `src/model-descriptions.ts`，未收录的新 `-free` 模型自动落到通用兜底文案；在会话里运行 `/zen-models` 即可看到当前模型的完整描述。
-
-| 模型 | 介绍 | 适合用处 | 注意 |
-| --- | --- | --- | --- |
-| `big-pickle` | 隐身模型（身份未公开），限时免费 | 日常问答、探索性编码、非敏感副线任务 | 免费期数据可能被用于改进模型 |
-| `space-bunny-free` | 隐身模型，零留存策略 | 对隐私有要求的通用编码（免费档里最稳妥） | 零留存、不用于训练 |
-| `longcat-2.5-preview-free` | 美团 LongCat 2.5 预览版，零留存 | 长上下文与通用代理任务试用 | 零留存、不用于训练；预览版随时变化 |
-| `exo-free` | 限时免费收集反馈 | 模型评测对比、非关键副线任务 | 数据可能被用于改进模型 |
-| `fledge-alpha-free` | Alpha 阶段限时免费 | 快速原型、实验性任务 | 稳定性未经保证；数据可能被训练 |
-| `mimo-v2.6-flash-free` | 小米 MiMo V2.6 Flash，低延迟 | 补全、commit message、小修小改、并行子代理 | 数据可能被用于改进模型 |
-| `mimo-v2.5-free` | 小米 MiMo 上一代 | V2.6 不可用时的备胎 | 实测上游可能 401 |
-| `ling-3.1-flash-free` | 蚂蚁 Ling 3.1 Flash，快速档 | 快速编码、批量并行的低风险子任务 | 数据可能被用于改进模型 |
-| `ling-3.0-flash-fin-free` | 蚂蚁 Ling 金融领域特化版 | 金融/数据代码、报表与对账逻辑 | 偶发 400/503 |
-| `nemotron-3-ultra-free` | NVIDIA Nemotron 3 Ultra 免费端点 | 推理较重的长链路分析 | 试用条款：禁用机密/个人数据，日志用于改进 |
-| `nemotron-3.5-lightning-free` | NVIDIA Nemotron 3.5 Lightning 轻量档 | 低延迟结构化输出、分类、信息提取 | 同上，禁用机密/个人数据 |
-| `muse-spark-1.3-contributor-free` | Meta Muse Spark Contributor 层 | 非私有代码的探索性任务（responses 通道） | prompt 会用于训练 Meta 模型；可能有地区限制 |
-| `jev-1.13-free` | TypeSafe AI Jev，结构化判定模型 | 工单分类、评分、路由等结构化决策 | 非聊天模型，本扩展已排除，不暴露 |
-
-选型速记：日常高频 → `mimo-v2.6-flash-free` / `ling-3.1-flash-free` / `nemotron-3.5-lightning-free`；隐私敏感 → `space-bunny-free` / `longcat-2.5-preview-free`；金融代码 → `ling-3.0-flash-fin-free`。大型重构等复杂任务仍建议用付费模型。
+可用模型示例：`big-pickle`、`mimo-v2.6-flash-free`、`nemotron-3.5-lightning-free`、`deepseek-v4.1-flash-free`、`glm-5.3-flash-free` 等（以上游实时列表为准）。
 
 ## 工作原理
 
@@ -87,7 +64,7 @@ pi -e /data/data/com.termux/files/home/workspace/pi-opencode-zen
 npm test
 ```
 
-测试只覆盖纯逻辑模块（`src/free-models.ts`、`src/model-descriptions.ts`、`src/model-report.ts`）。加载与流式链路的验证方式：
+测试只覆盖纯逻辑模块（`src/free-models.ts`、`src/free-lane.ts`）。加载与流式链路的验证方式：
 
 ```bash
 # 无报错即加载成功
@@ -104,12 +81,8 @@ extensions/opencode-zen-free.ts   扩展入口：注册 provider、快捷键、�
 src/provider.ts                   provider 组装（匿名鉴权、API 映射、动态刷新）
 src/free-lane.ts                  匿名免费通道的请求形态（派生 id、伪装头、体门控）
 src/free-models.ts                免费模型发现与筛选（无 pi-ai 依赖，便于测试）
-src/model-descriptions.ts         模型描述：介绍、适合用处、注意事项
-src/model-report.ts               /zen-models 报告：id + 描述的 Markdown 列表
 src/zen-stream.ts                 流式包装：把 pi-ai 请求接到免费通道
 src/constants.ts                  常量
 test/free-models.test.ts          模型筛选测试
-test/model-descriptions.test.ts   模型描述测试
-test/model-report.test.ts         /zen-models 报告测试
 test/free-lane.test.ts            通道请求形态测试
 ```

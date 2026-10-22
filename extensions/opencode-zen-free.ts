@@ -9,7 +9,6 @@
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { Key } from "@earendil-works/pi-tui";
 import { PROVIDER_ID, PROVIDER_NAME } from "../src/constants.ts";
-import { buildModelReport } from "../src/model-report.ts";
 import { createOpenCodeZenFreeProvider } from "../src/provider.ts";
 
 async function refreshZenModels(ctx: ExtensionContext): Promise<void> {
@@ -26,23 +25,6 @@ async function refreshZenModels(ctx: ExtensionContext): Promise<void> {
   ctx.ui.notify(`${PROVIDER_NAME}: ${count} free model${count === 1 ? "" : "s"} updated`, "info");
 }
 
-/** Print the currently exposed free models together with their descriptions. */
-function showModelDescriptions(pi: ExtensionAPI, ctx: ExtensionContext): void {
-  const report = buildModelReport(ctx.modelRegistry.getAll());
-  if (!report) {
-    ctx.ui.notify(`${PROVIDER_NAME}: no models yet — run /opencode-zen-free first`, "warning");
-    return;
-  }
-  pi.sendMessage(
-    {
-      customType: `${PROVIDER_ID}/models`,
-      display: true,
-      content: `### ${PROVIDER_NAME} 模型说明\n\n${report}`,
-    },
-    { triggerTurn: false },
-  );
-}
-
 export default function openCodeZenFree(pi: ExtensionAPI): void {
   pi.registerProvider(createOpenCodeZenFreeProvider());
 
@@ -54,10 +36,5 @@ export default function openCodeZenFree(pi: ExtensionAPI): void {
   pi.registerCommand("opencode-zen-free", {
     description: `Refresh ${PROVIDER_NAME} models`,
     handler: (_args, ctx) => refreshZenModels(ctx),
-  });
-
-  pi.registerCommand("zen-models", {
-    description: `Show ${PROVIDER_NAME} model descriptions`,
-    handler: (_args, ctx) => showModelDescriptions(pi, ctx),
   });
 }

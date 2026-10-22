@@ -7,7 +7,6 @@
  */
 
 import { PROVIDER_ID, ZEN_API_BASE_URL, ZEN_MODELS_URL } from "./constants.ts";
-import { modelDescription } from "./model-descriptions.ts";
 
 export interface ZenCost {
   input?: number;
@@ -33,8 +32,6 @@ export interface ZenModelLike {
   contextWindow?: number;
   maxTokens?: number;
   type?: string;
-  /** Human-readable introduction + suitable uses (see `model-descriptions.ts`). */
-  description?: string;
   [key: string]: unknown;
 }
 
@@ -145,14 +142,7 @@ export function selectFreeModels(
     seen.add(id);
   }
 
-  return selected.map(withDescription).sort((a, b) => a.id.localeCompare(b.id));
-}
-
-/** Attach the curated one-line description, never overwriting an existing one. */
-function withDescription(model: ZenModelLike): ZenModelLike {
-  if (model.description) return model;
-  const description = modelDescription(model.id);
-  return description ? { ...model, description } : model;
+  return selected.sort((a, b) => a.id.localeCompare(b.id));
 }
 
 /** Build a conservative definition for a live free model that is not in the catalog. */
@@ -169,6 +159,5 @@ export function synthesizeFreeModel(id: string, providerId: string = PROVIDER_ID
     contextWindow: 131072,
     maxTokens: 32768,
     type: "chat",
-    description: modelDescription(id),
   };
 }
